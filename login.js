@@ -107,7 +107,7 @@ app.post('/unfollow', function(request, response) {
     				}
 
     				else{
-    					console.send("done");
+    					console.log("done");
     				}
 
     			});
@@ -123,6 +123,124 @@ app.post('/unfollow', function(request, response) {
 		response.end();
 	}
 });
+
+app.post('/postTweet',function(request,response){
+	var content = request.body.content;
+	var ownerID = request.body.ownerID;
+	var tweetId = randomIntInc(1, 10000);
+
+	if(ownerID && content)
+	{
+		connection.query('insert into tweets values(?,?,?)', [tweetId,ownerID,content], function(error, results,fields){
+			if(error)
+			{
+				console.log(error);
+			}
+			console.log("Done");
+			response.end();
+
+
+		});
+	}
+	else{
+		console.log("sent wrong data");
+	}
+
+}
+);
+
+
+app.post('/deleteTweet',function(request,response){
+
+	var tweetId = request.body.tweetId;
+	if(tweetId)
+	{
+		connection.query('delete from tweets where tweetId = ?', [tweetId], function(error, results,fields){
+			if(error)
+			{
+				console.log(error);
+			}
+			console.log("Done");
+			response.end();
+
+
+		});
+	}
+	else{
+		console.log("sent wrong data");
+	}
+
+}
+);
+
+app.get('/fetchTweets',function(request,response){
+
+	var ownerID = request.query.ownerID;
+
+	if(ownerID)
+	{
+		connection.query('select * from tweets where ownerID = ?', [ownerID], function(error, results,fields){
+			if(error)
+			{
+				console.log(error);
+			}
+			console.log(results);
+			response.end();
+
+
+		});
+	}
+	else{
+		console.log("sent wrong data");
+	}
+
+}
+);
+
+
+app.post('/likeDislike',function(request,response){
+
+	var tweetId = request.body.tweetId;
+	var id = request.body.id;
+	var likeID = randomIntInc(1, 10000);
+	var bool = request.body.bool;
+
+
+	if(tweetId && id && bool == 1)
+	{
+		connection.query('insert into likes values (?,?,?)', [likeID,tweetId,id], function(error, results,fields){
+			if(error)
+			{
+				console.log(error);
+			}
+			console.log("Done");
+			response.end();
+
+
+		});
+	}
+	else if(tweetId && id && bool == 0)
+	{
+		connection.query('delete from likes where tweetId = ? and id = ?', [tweetId,id], function(error, results,fields){
+			if(error)
+			{
+				console.log(error);
+			}
+			console.log("Done");
+			response.end();
+
+
+		});
+	}
+	else{
+		console.log("sent wrong data");
+	}
+
+}
+);
+
+
+
 
 
 app.post('/reg', function(request, response) {
@@ -152,6 +270,32 @@ app.post('/reg', function(request, response) {
 	}
 });
 
+
+app.post('/retweet', function(request, response) {
+	var retweeterID = request.body.retweeterID;
+	var tweetId = request.body.tweetId;
+
+	var RTID = randomIntInc(1, 10000);
+
+	if (tweetId && retweeterID) {
+
+		connection.query('insert into retweets values ( ?, ?,?)', [RTID, tweetId,retweeterID], function(error, results, fields) {
+			if(error)
+    {
+        console.log(error)
+    }
+			 else {
+				
+				console.log("done");
+
+			}			
+			response.end();
+		});
+	} else {
+		response.send('wrong creds');
+		response.end();
+	}
+});
 
 
 
