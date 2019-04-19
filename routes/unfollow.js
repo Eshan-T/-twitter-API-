@@ -32,30 +32,26 @@ router.post('/', function(request, response) {
 	}
 	var unfollowid = request.body.unfollowid;
 	var targetid = request.body.targetid;
-	var id = randomIntInc(1, 10000);
+	var id = randomIntInc(1, 10000000);
 
 	if (unfollowid && targetid)
 	{
 		db.query('select * from user where id = ?', [unfollowid], function(error, results, fields) 
 		{
-
+			//checking if follower ID exists
 			if(results.length>0)
 			{
 				db.query('select * from user where id = ?', [targetid], function(error, results, fields) 
 				{
+					//checking if followee ID exists
 
 					if(results.length>0)
 					{
 						db.query('select * from follows where follower = ? and target = ?', [unfollowid,targetid], function(error, results, fields) 
 						{
+							//checking if they're already unfollowed
 
-							if(results.length==0)
-							{
-								response.status(204).send('Already not following');
-
-								
-							}
-							else
+							if(results.length>0)
 							{
 								db.query('delete from follows where follower = ? and target = ? ', [unfollowid, targetid], function(error, results, fields) 
 								{
@@ -63,10 +59,18 @@ router.post('/', function(request, response) {
    									{
 										response.status(404).send('SQL issue');
     								}
+    								else{
 			
-									response.status(205).send('Success');
+									response.status(200).send('Success');
+								}
 					
 								});
+								
+							}
+							else
+							{
+
+								response.status(409).send('Error: Already not following');
 
 							}
 
@@ -74,15 +78,13 @@ router.post('/', function(request, response) {
 					}
 					else
 					{
-										response.status(203).send('User does not exist');
-
-
+						response.status(404).send('Error: User does not exist');
 					}
 
 				});
 			}
 			else{
-				response.status(203).send('User does not exist');
+				response.status(404).send('Error: User does not exist');
 			}
 		
 		});
@@ -92,10 +94,7 @@ router.post('/', function(request, response) {
 	} 
 	else 
 	{
-				response.status(202).send('incomplete parameters');
-
-
-
+		response.status(400).send('Error: Missing parameters');
 	}
 });
 

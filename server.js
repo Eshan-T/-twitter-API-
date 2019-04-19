@@ -57,9 +57,5 @@ app.use('/home' , home);
 
 
 
-function randomIntInc(low, high) {
-  return Math.floor(Math.random() * (high - low + 1) + low)
-}
-
 app.listen(3000);
 module.export = app;

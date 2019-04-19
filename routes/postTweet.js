@@ -21,7 +21,7 @@ router.post('/',function(request,response)
 
 	if (request.session.loggedin)
 	{
-		//response.send('Logged in already');
+		//'Logged in already, proceed
 	}
 	else
 	{
@@ -32,31 +32,30 @@ router.post('/',function(request,response)
 	var content = request.body.content;
 	var ownerID = request.body.ownerID;
 	// check if owner exists
-	// check for content length.
-	var tweetId = randomIntInc(1, 10000);
+	var tweetId = randomIntInc(1, 10000000);
 
 	if(ownerID && content)
 	{
 		db.query('select * from user where id = ?', [ownerID], function(error, results, fields) 
 		{
-
+			// check if user exists
 			if(results.length>0)
-			{
+			{	//writing into the DB
 				db.query('insert into tweets values(?,?,?)', [tweetId,ownerID,content], function(error, results,fields)
 				{
 					if(error)
 					{
-						response.status(205).send('Some SQL issue');
+						response.status(205).send('Error: Database issue');
 					}
 				
-					response.status(204).send('success');
+					response.status(200).send('Successfully Posted');
 
 
 				});
 			}
 			else
 			{
-				response.status(203).send('User does not exist');
+				response.status(409).send('Error: User does not exist');
 
 			}
 
@@ -68,7 +67,7 @@ router.post('/',function(request,response)
 	else
 	{
 		
-		response.status(202).send('Sent insufficient parameters');
+		response.status(400).send('Error: Parameters Missing');
 
 	}
 

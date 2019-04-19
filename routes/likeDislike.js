@@ -12,20 +12,19 @@ router.post('/',function(request,response){
 
 	var tweetId = request.body.tweetId;
 	var id = request.body.id;
-	var likeID = randomIntInc(1, 10000);
+	var likeID = randomIntInc(1, 10000000);
 	var bool = request.body.bool;
 	// check for presence of all parameters. 
 	//check for validity of user and tweetID.
 
 
 	if(tweetId && id && bool == 1)
-	{
+	{	// check: must already not be liked.
 		db.query('select * from likes where tweetId = ? and id = ?', [tweetId,id], function(error, results, fields) 
-				{ console.log('here')
-
+				{ 
 					if(results.length>0)
 					{
-						response.status(204).send('Already liked');
+						response.status(409).send('Already liked');
 					}
 					else
 					{
@@ -36,7 +35,7 @@ router.post('/',function(request,response){
 								console.log(error);
 							}
 			
-							response.status(200).send('Success');
+							response.status(200).send('Successfully liked');
 
 						});
 
@@ -45,7 +44,7 @@ router.post('/',function(request,response){
 				});
 	}
 	else if(tweetId && id && bool == 0)
-	{ // check: must be liked.
+	{ // check: must already be liked.
 		db.query('select * from likes where tweetId = ? and id = ?', [tweetId,id], function(error, results, fields) 
 				{
 
@@ -58,7 +57,7 @@ router.post('/',function(request,response){
 								console.log(error);
 							}
 			
-							response.status(200).send('Success');
+							response.status(200).send('Successfully unliked');
 
 						});
 
@@ -67,14 +66,14 @@ router.post('/',function(request,response){
 					
 					else
 					{
-						response.status(205).send('Already unliked');
+						response.status(409).send('Already unliked');
 		
 					}
 				});
 	}
 	else{
 
-		response.status(203).send('Imcomplete paramters');
+		response.status(400).send('Error: Imcomplete paramters');
 	}
 
 }

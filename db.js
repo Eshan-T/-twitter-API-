@@ -5,7 +5,6 @@ var connection = mysql.createConnection({
 	user     : 'root',
 	password : 'root',
 	database : 'twitterUser',
-	//socketPath  : '/var/run/mysqld/mysqld.sock',
 
 });
 

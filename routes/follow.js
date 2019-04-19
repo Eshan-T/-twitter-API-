@@ -30,28 +30,27 @@ router.post('/', function(request, response) {
 	}
 	var followid = request.body.followid;
 	var targetid = request.body.targetid;
-	var id = randomIntInc(1, 10000);
+	var id = randomIntInc(1, 10000000);
 
 	if (followid && targetid)
 	{
 		db.query('select * from user where id = ?', [followid], function(error, results, fields) 
 		{
-
+			//check if follower exists
 			if(results.length>0)
 			{
 				db.query('select * from user where id = ?', [targetid], function(error, results, fields) 
 				{
-
+					// check if followee exists
 					if(results.length>0)
 					{
 						db.query('select * from follows where follower = ? and target = ?', [followid,targetid], function(error, results, fields) 
 						{
-
+							// check if they already follow each other
 							if(results.length>0)
 							{
-								response.status(204).send('Already following');
-
-								
+								response.status(409).send('Error : Already following');
+							
 							}
 							else
 							{
@@ -59,10 +58,10 @@ router.post('/', function(request, response) {
 								{
 									if(error)
    									{
-										response.status(404).send('SQL issue');
+										response.status(404).send('Error : SQL issue');
     								}
 			
-									response.status(205).send('Success');
+									response.status(200).send('Successfully Followed');
 					
 								});
 
@@ -72,15 +71,15 @@ router.post('/', function(request, response) {
 					}
 					else
 					{
-										response.status(203).send('User does not exist');
-
+						response.status(404).send('Error: User does not exist');
 
 					}
 
 				});
 			}
-			else{
-				response.status(203).send('User does not exist');
+			else
+			{
+				response.status(404).send('Error: User does not exist');
 			}
 		
 		});
@@ -90,7 +89,7 @@ router.post('/', function(request, response) {
 	} 
 	else 
 	{
-				response.status(202).send('incomplete parameters');
+		response.status(400).send('404: Missing parameters');
 
 
 

@@ -11,41 +11,38 @@ app.use(bodyParser.json());
 
 router.post('/', function(request, response)
 {
-	// check if parameters are properly being sent.
+	
 	var username = request.body.username;
 	var password = request.body.password;
-	var id = randomIntInc(1, 10000);
+	var id = randomIntInc(1, 10000000);
 
-	//check if username already exists.
-	// also store hashed password using that library.
+	// check if both paramters are present in the POST request
 	if (username && password)
 	{ 
 		db.query('select * from user where name = ?', [username], function(error, results, fields) 
 		{
 			if(results.length > 0)
-			{
-				response.status(404).send('User already exists');
+			{	//UserID already exists in the DB
+				response.status(409).send('Error: User already exists');
 				return;
 
 			}
 			else
 			{
-				bcrypt.hash(password, saltRounds, function(err, hash)
-				{
-  					db.query('insert into user values ( ?, ?,?)', [id,username, hash], function(error, results, fields)
-  					{
+				
+  					db.query('insert into user values ( ?, ?,?)', [id,username, password], function(error, results, fields)
+  					{ 
 						if(error)
  						{ 
-    			   			response.status(404).send('Some SQL issue');
+    			   			response.status(500).send('Error: Database error');
    						}
 						else
 						{
-							response.status(200).send('success');
+							// Successful Regiatration
+							response.status(200).send('Registration Successful');
 						}
 							
 					});
-				});
-
 			}
 
 		});
@@ -54,7 +51,7 @@ router.post('/', function(request, response)
 	}
 	else
 	{
-		response.status(404).send('Please enter Username and Password!');
+		response.status(404).send('Bad request: Missing Parameters');
 	}
 });
 

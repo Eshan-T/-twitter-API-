@@ -15,78 +15,75 @@ router.post('/', function(request, response)
 {
 	if (request.session.loggedin)
 	{
-		//response.send('Logged in already');
+		//Logged in already, proceed
 	} 
 	else
 	{
-		// send appropriate response code
-		// message:  User not logged in.
+		// User not logged in.
 		response.status(404).send('Please login to view this page!');
 	}
 	// check if all parameters are sent.
 	var retweeterID = request.body.retweeterID;
 	var tweetId = request.body.tweetId;
-	var RTID = randomIntInc(1, 10000);
+	var RTID = randomIntInc(1, 10000000);
 
 	if (tweetId && retweeterID) 
 	{
 
 		db.query('select * from tweets where tweetId = ?', [tweetId], function(error, results, fields)
-		{
+		{	//checking if tweet exists
 			if(results.length>0)
-			{
+			{ 
 				db.query('select * from user where id = ?', [retweeterID], function(error, results, fields) 
 				{
-
+					//checking if USERID exists
 					if(results.length>0)
 					{
 						db.query('select * from retweets where tweetId = ? and retweeterID = ? ', [tweetId,retweeterID], function(error, results, fields) 
 						{
-
-							if(results.length==0)
+							//check if already retweeted
+							if(results.length>0)
+							{ // inserting into retweets table
+								response.status(409).send('Error: User has already retweeted');
+								
+							}
+							else
 							{
 								db.query('insert into retweets values ( ?, ?,?)', [RTID, tweetId,retweeterID], function(error, results, fields)
 								{
 									if(error)
    									{
-										response.status(404).send('Some SQL issue');
+										response.status(404).send('Error: Some SQL issue');
        									console.log(error)
   									}
 									else
 									{
-										response.status(200).send('Success');
-										console.log("done");
+										response.status(200).send('Successfully Retweeted');
 									}			
 								});
-							}
-							else
-							{
-								response.status(203).send('User has already retweeted');
 							}
 
 						});
 					}
 					else
 					{
-						response.status(202).send('User or tweet does not exist');
+						response.status(404).send('Error: User or tweet does not exist');
 					}
 
 				});
 			}
 			else
 			{
-				response.status(202).send('User or tweet does not exist');
+				response.status(404).send('Error: User or tweet does not exist');
 			}
 
 	});
 
 
-		// also check if this tweet has already been retweeted. 	
 	} 
 	else
 	{
-		// send appropriate response code
-		response.status(201).send('User or tweet does not exist');
+		response.status(400).send('Error: Missing parameters');
 	}
 });
 

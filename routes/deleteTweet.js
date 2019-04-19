@@ -12,7 +12,7 @@ router.post('/',function(request,response)
 
 	if (request.session.loggedin)
 	{
-		//response.send('Logged in already');
+		//Logged in already, proceed
 	}
 	else
 	{
@@ -34,17 +34,17 @@ router.post('/',function(request,response)
 				{
 					if(error)
 					{
-						response.status(404).send('Some SQL issue');
+						response.status(404).send('Error: SQL DB issue');
 						return
 					}
-					response.status(204).send('success');
+					response.status(200).send('Successfully Delete');
 
 
 				});
 			}
 			else
 			{
-				response.status(203).send('Tweet does not exists');
+				response.status(404).send('Error: Tweet does not exists');
 			}
 
 		});
@@ -54,8 +54,8 @@ router.post('/',function(request,response)
 	}
 	else
 	{
-		response.status(202).send('Incorrect parameters');
-		// send message and response code for wrong param.
+		response.status(400).send('Error: Incorrect parameters');
+		// sending message and response code for wrong or missing parameters.
 	}
 
 });
